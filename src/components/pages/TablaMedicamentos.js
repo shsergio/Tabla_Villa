@@ -1,44 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './TablaMedicamentos.css';
 
 const TablaMedicamentos = () => {
-  const [medicamentos, setMedicamentos] = useState([
-    { categoria: 'Morning', medicamento: '', dosis: '', tiempo: '', fecha: '', comentarios: '' },
-    { categoria: 'Noon', medicamento: '', dosis: '', tiempo: '', fecha: '', comentarios: '' },
-    { categoria: 'Evening', medicamento: '', dosis: '', tiempo: '', fecha: '', comentarios: '' },
-    { categoria: 'Night', medicamento: '', dosis: '', tiempo: '', fecha: '', comentarios: '' },
-    { categoria: 'Only When I Need It', medicamento: '', dosis: '', tiempo: '', fecha: '', comentarios: '' }
-  ]);
+  const [medicamentos, setMedicamentos] = useState([]);
 
-  const handleInputChange = (e, index, field) => {
+  useEffect(() => {
+    const mockMedicamentos = [
+      { id: 1, nombre: 'Medicamento 1', categoria: 'Morning', dosis: '10mg', tiempo: '08:00', receta: 'Receta 1', color: '#ffcccc' },
+      { id: 2, nombre: 'Medicamento 2', categoria: 'Noon', dosis: '20mg', tiempo: '12:00', receta: 'Receta 2', color: '#ccffcc' },
+      { id: 3, nombre: 'Medicamento 3', categoria: 'Evening', dosis: '15mg', tiempo: '18:00', receta: 'Receta 3', color: '#ccccff' },
+      { id: 4, nombre: 'Medicamento 4', categoria: 'Night', dosis: '25mg', tiempo: '22:00', receta: 'Receta 4', color: '#ffffcc' },
+      { id: 5, nombre: 'Medicamento 5', categoria: 'Only When I Need It', dosis: 'Varies', tiempo: 'Varies', receta: 'Receta 5', color: '#ffccff' }
+    ];
+    setMedicamentos(mockMedicamentos);
+  }, []);
+
+  const handleInputChange = (e, id, field) => {
     const { value } = e.target;
-    const updatedMedicamentos = [...medicamentos];
-    updatedMedicamentos[index][field] = value;
+    const updatedMedicamentos = medicamentos.map((med) => {
+      if (med.id === id) {
+        return { ...med, [field]: value };
+      }
+      return med;
+    });
+    setMedicamentos(updatedMedicamentos);
+  };
+
+  const agregarMedicamento = () => {
+    const nuevoId = medicamentos.length > 0 ? medicamentos[medicamentos.length - 1].id + 1 : 1;
+    const nuevoMedicamento = {
+      id: nuevoId,
+      nombre: '',
+      categoria: 'Morning', // Categoría por defecto al agregar un nuevo medicamento
+      dosis: '',
+      tiempo: '',
+      receta: '',
+      color: '#ffffff' // Color por defecto o podrías generar uno aleatorio
+    };
+    setMedicamentos([...medicamentos, nuevoMedicamento]);
+  };
+
+  const eliminarMedicamento = (id) => {
+    const updatedMedicamentos = medicamentos.filter((med) => med.id !== id);
     setMedicamentos(updatedMedicamentos);
   };
 
   return (
     <div className="medicine-table">
+      <button onClick={agregarMedicamento}>Agregar Medicamento</button>
       <table>
         <thead>
           <tr>
-            <th></th>
+            <th>Categoría</th>
             <th>Medicamento</th>
             <th>Dosis</th>
             <th>Tiempo</th>
-            <th>Fecha</th>
-            <th>Comentarios</th>
+            <th>Receta</th>
           </tr>
         </thead>
         <tbody>
-          {medicamentos.map((med, index) => (
-            <tr key={index}>
+          {medicamentos.map((med) => (
+            <tr key={med.id} style={{ backgroundColor: med.color }}>
               <td>{med.categoria}</td>
-              <td><input value={med.medicamento} onChange={(e) => handleInputChange(e, index, 'medicamento')} /></td>
-              <td><input value={med.dosis} onChange={(e) => handleInputChange(e, index, 'dosis')} /></td>
-              <td><input value={med.tiempo} onChange={(e) => handleInputChange(e, index, 'tiempo')} /></td>
-              <td><input value={med.fecha} onChange={(e) => handleInputChange(e, index, 'fecha')} /></td>
-              <td><input value={med.comentarios} onChange={(e) => handleInputChange(e, index, 'comentarios')} /></td>
+              <td><input value={med.nombre} onChange={(e) => handleInputChange(e, med.id, 'nombre')} /></td>
+              <td><input value={med.dosis} onChange={(e) => handleInputChange(e, med.id, 'dosis')} /></td>
+              <td><input value={med.tiempo} onChange={(e) => handleInputChange(e, med.id, 'tiempo')} /></td>
+              <td><input value={med.receta} onChange={(e) => handleInputChange(e, med.id, 'receta')} /></td>
+              <td>
+                <button onClick={() => eliminarMedicamento(med.id)}>Eliminar</button>
+              </td>
             </tr>
           ))}
         </tbody>
